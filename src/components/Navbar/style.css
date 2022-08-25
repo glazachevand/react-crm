@@ -1,0 +1,24 @@
+.project-nav {
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 60px;
+	z-index: 999;
+
+	background-color: #e3f7ff;
+	color: #fff;
+}
+
+.project-nav__links-wrapper {
+	display: flex;
+	justify-content: center;
+	column-gap: 30px;
+	align-items: center;
+	height: 100%;
+}
+
+.project-nav a {
+	color: rgb(86, 127, 192);
+}
