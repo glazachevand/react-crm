@@ -1,4 +1,4 @@
-const LeftPanelUser = () => {
+export const User = () => {
   return (
     <div className="left-panel__user clearfix">
       <div className="left-panel__user-photo">
@@ -11,5 +11,3 @@ const LeftPanelUser = () => {
     </div>
   );
 };
-
-export default LeftPanelUser;

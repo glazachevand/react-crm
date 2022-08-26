@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
-const TableRequest = ({ request }) => {
+export const TableItem = ({ request }) => {
   const { name, phone, email, dateFormat, productName, statusName, statusClass, id } = request;
 
   return (
@@ -12,13 +12,13 @@ const TableRequest = ({ request }) => {
       <td>{email}</td>
       <td>{phone}</td>
       <td>
-        <div className={"badge badge-pill " + statusClass}>{statusName}</div>
+        <div className={'badge badge-pill ' + statusClass}>{statusName}</div>
       </td>
       <td>
         <Link
-          to={"/edit/" + id}
+          to={'/edit/' + id}
           onClick={() => {
-            localStorage.setItem("editId", id);
+            localStorage.setItem('editId', id);
           }}>
           Редактировать
         </Link>
@@ -26,5 +26,3 @@ const TableRequest = ({ request }) => {
     </tr>
   );
 };
-
-export default TableRequest;

@@ -1,16 +1,14 @@
-import Navbar from "../Navbar";
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 const NotFound = () => {
   const cssHeader = {
-    fontWeight: "800",
-    color: "#2789e6",
-    fontSize: "8rem",
+    fontWeight: '800',
+    color: '#2789e6',
+    fontSize: '8rem',
   };
 
   return (
     <div className="page with-nav radial-bg flex-center">
-      <Navbar />
       <div className="white-plate white-plate--payment">
         <div className="container-fluid">
           <div className="text-center">

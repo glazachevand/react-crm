@@ -1,14 +1,11 @@
-import LeftPanel from "../LeftPanel";
-import ProductSelect from "../ProductSelect";
-import Table from "../Table";
-import TopStatusBar from "../TopStatusBar";
-import "./style.css";
-import { serverPath } from "../../helpers/variables";
-import { useEffect, useState, createContext } from "react";
+import { serverPath } from '../utils/variables';
+import { useEffect, useState, createContext } from 'react';
+import { ProductSelect, TopStatusNav, TableItem, Logo, LeftStatusNav, User } from '../components';
+import '../css/pages/table.css';
 
 export const TableContext = createContext(null);
 
-const TablePage = ({ statuses, products, optionsProducts }) => {
+const Table = ({ statuses, products, optionsProducts }) => {
   const [requests, setRequests] = useState(null);
   const [filter, setFilter] = useState(loadFilter());
   const [badges, setBadges] = useState(null);
@@ -17,12 +14,12 @@ const TablePage = ({ statuses, products, optionsProducts }) => {
 
   useEffect(() => {
     if (filter.product && filter.status) {
-      fetch(serverPath + "requests")
+      fetch(serverPath + 'requests')
         .then((res) => {
           if (!res.ok) {
-            setError("Ошибка загрузки с сервера");
+            setError('Ошибка загрузки с сервера');
             setLoading(false);
-            throw Error("Ошибка загрузки с сервера");
+            throw Error('Ошибка загрузки с сервера');
           }
           return res.json();
         })
@@ -36,14 +33,14 @@ const TablePage = ({ statuses, products, optionsProducts }) => {
 
   function loadFilter() {
     let filter = {
-      product: "all",
-      status: "all",
+      product: 'all',
+      status: 'all',
     };
 
-    if (localStorage.getItem("filter")) {
-      filter = JSON.parse(localStorage.getItem("filter"));
+    if (localStorage.getItem('filter')) {
+      filter = JSON.parse(localStorage.getItem('filter'));
     } else {
-      localStorage.setItem("filter", JSON.stringify(filter));
+      localStorage.setItem('filter', JSON.stringify(filter));
     }
 
     return filter;
@@ -52,11 +49,11 @@ const TablePage = ({ statuses, products, optionsProducts }) => {
   function filterRequests(requestsArr, filterProduct, filterStatus) {
     let filteredRequests = [...requestsArr];
 
-    if (filterProduct && filterProduct !== "all") {
+    if (filterProduct && filterProduct !== 'all') {
       filteredRequests = filteredRequests.filter((item) => item.product === filterProduct);
     }
 
-    if (filterStatus && filterStatus !== "all") {
+    if (filterStatus && filterStatus !== 'all') {
       filteredRequests = filteredRequests.filter((item) => item.status === filterStatus);
     }
 
@@ -80,7 +77,7 @@ const TablePage = ({ statuses, products, optionsProducts }) => {
     setFilter((filter) => {
       let filterNew = { ...filter };
       filterNew[prop] = value;
-      localStorage.setItem("filter", JSON.stringify(filterNew));
+      localStorage.setItem('filter', JSON.stringify(filterNew));
       return filterNew;
     });
   }
@@ -93,18 +90,18 @@ const TablePage = ({ statuses, products, optionsProducts }) => {
         ...item,
         dateFormat: new Date(item.date).toLocaleDateString(),
         productName: productName.title,
-        statusName: statusName ? statusName.title : "",
-        statusClass: statusName ? statusName.class : "",
+        statusName: statusName ? statusName.title : '',
+        statusClass: statusName ? statusName.class : '',
       };
     });
   }
 
   const linksTopStatusBar = [
-    { status: "all", title: "Все", titleNav: "Все", class: "" },
+    { status: 'all', title: 'Все', titleNav: 'Все', class: '' },
     ...statuses,
   ];
   const linksLeftPanelNav = [
-    { status: "all", title: "Все", titleNav: "Все вместе", class: "" },
+    { status: 'all', title: 'Все', titleNav: 'Все вместе', class: '' },
     ...statuses,
   ];
 
@@ -120,7 +117,11 @@ const TablePage = ({ statuses, products, optionsProducts }) => {
           linksTopStatusBar,
           linksLeftPanelNav,
         }}>
-        <LeftPanel />
+        <div className="left-panel blue-skin">
+          <Logo />
+          <User />
+          <LeftStatusNav />
+        </div>
         <div className="main-wrapper">
           <div className="container-fluid">
             <div className="admin-heading-1">Все заявки</div>
@@ -128,7 +129,7 @@ const TablePage = ({ statuses, products, optionsProducts }) => {
             <form action="">
               <div className="row mb-3 justify-content-start">
                 <div className="col">
-                  <TopStatusBar />
+                  <TopStatusNav />
                 </div>
 
                 <div className="col">
@@ -139,7 +140,27 @@ const TablePage = ({ statuses, products, optionsProducts }) => {
 
             {error && <div className="alert alert-danger">{error}</div>}
             {isLoading && <h3>загрузка...</h3>}
-            {requests && <Table />}
+            {requests && (
+              <table className="table fs-14">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>дата</th>
+                    <th>продукт</th>
+                    <th>имя</th>
+                    <th>email</th>
+                    <th>телефон</th>
+                    <th>статус</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody">
+                  {prepareRequestsForTable(requests).map((request) => (
+                    <TableItem request={request} key={request.id} />
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </TableContext.Provider>
@@ -147,4 +168,4 @@ const TablePage = ({ statuses, products, optionsProducts }) => {
   );
 };
 
-export default TablePage;
+export default Table;

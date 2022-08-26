@@ -1,12 +1,12 @@
-import { useContext } from "react";
-import { TableContext } from "../TablePage/";
-import { Link } from "react-router-dom";
+import { useContext } from 'react';
+import { TableContext } from '../pages/Table';
+import { Link } from 'react-router-dom';
 
-const TopStatusBar = () => {
+export const TopStatusNav = () => {
   const { filter, changeFilter, linksTopStatusBar: links } = useContext(TableContext);
 
   const renderLists = links.map((link) => {
-    const cssClass = filter.status === link.status ? "btn btn-light active" : "btn btn-light";
+    const cssClass = filter.status === link.status ? 'btn btn-light active' : 'btn btn-light';
 
     return (
       <Link
@@ -15,7 +15,7 @@ const TopStatusBar = () => {
         className={cssClass}
         data-value={link.status}
         onClick={() => {
-          changeFilter("status", link.status);
+          changeFilter('status', link.status);
         }}>
         {link.titleNav}
       </Link>
@@ -28,5 +28,3 @@ const TopStatusBar = () => {
     </div>
   );
 };
-
-export default TopStatusBar;

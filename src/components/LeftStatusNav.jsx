@@ -1,17 +1,17 @@
-import { useContext } from "react";
-import { TableContext } from "../TablePage/";
-import { Link } from "react-router-dom";
+import { useContext } from 'react';
+import { TableContext } from '../pages/Table';
+import { Link } from 'react-router-dom';
 
-const LeftPanelNav = () => {
+export const LeftStatusNav = () => {
   const { filter, badges, changeFilter, linksLeftPanelNav: links } = useContext(TableContext);
 
   const renderLists = links.map((link) => {
-    const cssClass = filter.status === link.status ? "active" : "";
-    let displayBadge = { display: "none" };
-    let countBadge = "";
+    const cssClass = filter.status === link.status ? 'active' : '';
+    let displayBadge = { display: 'none' };
+    let countBadge = '';
 
     if (badges && badges[link.status] > 0) {
-      displayBadge = { display: "inline-block" };
+      displayBadge = { display: 'inline-block' };
       countBadge = badges[link.status];
     }
 
@@ -23,7 +23,7 @@ const LeftPanelNav = () => {
           to="#!"
           className={cssClass}
           onClick={() => {
-            changeFilter("status", link.status);
+            changeFilter('status', link.status);
           }}>
           {link.titleNav}
           <div className="badge" style={displayBadge}>
@@ -41,5 +41,3 @@ const LeftPanelNav = () => {
     </div>
   );
 };
-
-export default LeftPanelNav;

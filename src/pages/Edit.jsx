@@ -1,22 +1,25 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { serverPath } from "../../helpers/variables";
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { serverPath } from '../utils/variables';
+import '../css/pages/edit.css';
 
-const EditForm = ({ id, optionsProducts, optionsStatuses }) => {
+const Edit = ({ optionsProducts, optionsStatuses }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [request, setRequest] = useState(null);
   const [isSave, setSave] = useState(false);
   const [isDelete, setDelete] = useState(false);
   const [isLoading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(serverPath + "requests/" + id)
+    fetch(serverPath + 'requests/' + id)
       .then((res) => {
         if (!res.ok) {
-          setError("Ошибка загрузки с сервера");
+          setError('Ошибка загрузки с сервера');
           setLoading(false);
-          throw Error("Ошибка загрузки с сервера");
+          throw Error('Ошибка загрузки с сервера');
         }
         return res.json();
       })
@@ -28,7 +31,7 @@ const EditForm = ({ id, optionsProducts, optionsStatuses }) => {
 
   const dateFormat = (date) => {
     const dateNew = new Date(date);
-    return `${dateNew.toLocaleDateString("ru-RU")} ${dateNew.toLocaleTimeString("ru-RU")}`;
+    return `${dateNew.toLocaleDateString('ru-RU')} ${dateNew.toLocaleTimeString('ru-RU')}`;
   };
 
   const changeInput = (e, field) => {
@@ -44,16 +47,16 @@ const EditForm = ({ id, optionsProducts, optionsStatuses }) => {
     e.preventDefault();
     setSave(true);
 
-    fetch(serverPath + "requests/" + id, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
+    fetch(serverPath + 'requests/' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     }).then((res) => {
       if (res.ok) {
         setSave(false);
-        navigate("/table");
+        navigate('/table');
       } else {
-        setError("Ошибка загрузки на сервер");
+        setError('Ошибка загрузки на сервер');
         setSave(false);
       }
     });
@@ -62,15 +65,15 @@ const EditForm = ({ id, optionsProducts, optionsStatuses }) => {
   const deleteRequest = (id) => {
     setDelete(true);
 
-    fetch(serverPath + "requests/" + id, {
-      method: "DELETE",
+    fetch(serverPath + 'requests/' + id, {
+      method: 'DELETE',
     }).then((res) => {
       if (res.ok) {
-        localStorage.removeItem("editId");
+        localStorage.removeItem('editId');
         setDelete(false);
-        navigate("/table");
+        navigate('/table');
       } else {
-        setError("Ошибка загрузки на сервер");
+        setError('Ошибка загрузки на сервер');
         setDelete(false);
       }
     });
@@ -114,7 +117,7 @@ const EditForm = ({ id, optionsProducts, optionsStatuses }) => {
                     name="product"
                     className="custom-select"
                     value={request.product}
-                    onChange={(e) => changeInput(e, "product")}>
+                    onChange={(e) => changeInput(e, 'product')}>
                     {optionsProducts}
                   </select>
                 </div>
@@ -129,7 +132,7 @@ const EditForm = ({ id, optionsProducts, optionsStatuses }) => {
                     type="text"
                     className="form-control"
                     value={request.name}
-                    onChange={(e) => changeInput(e, "name")}
+                    onChange={(e) => changeInput(e, 'name')}
                     id="name"
                     name="name"
                   />
@@ -145,7 +148,7 @@ const EditForm = ({ id, optionsProducts, optionsStatuses }) => {
                     type="email"
                     className="form-control"
                     value={request.email}
-                    onChange={(e) => changeInput(e, "email")}
+                    onChange={(e) => changeInput(e, 'email')}
                     id="email"
                     name="email"
                   />
@@ -161,7 +164,7 @@ const EditForm = ({ id, optionsProducts, optionsStatuses }) => {
                     type="tel"
                     className="form-control"
                     value={request.phone}
-                    onChange={(e) => changeInput(e, "phone")}
+                    onChange={(e) => changeInput(e, 'phone')}
                     id="phone"
                     name="phone"
                   />
@@ -178,7 +181,7 @@ const EditForm = ({ id, optionsProducts, optionsStatuses }) => {
                     id="status"
                     name="status"
                     value={request.status}
-                    onChange={(e) => changeInput(e, "status")}>
+                    onChange={(e) => changeInput(e, 'status')}>
                     <option defaultValue="">Выберите...</option>
                     {optionsStatuses}
                   </select>
@@ -224,4 +227,4 @@ const EditForm = ({ id, optionsProducts, optionsStatuses }) => {
   );
 };
 
-export default EditForm;
+export default Edit;
