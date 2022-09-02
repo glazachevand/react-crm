@@ -1,34 +1,21 @@
 import { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { addRequest } from '../redux/asyncActions';
+import { optionsProducts } from '../types';
 import test from '../utils/test';
-import { serverPath } from '../utils/variables';
 import '../css/pages/form.css';
 
-const Form = ({ optionsProducts }) => {
+const Form = () => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [product, setProduct] = useState('course-html');
-  const [isLoading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [testFlag, setTestFlag] = useState(true);
 
-  // заполнение тестовыми данными
-  useEffect(() => {
-    const randomValue = (array) => {
-      return array[Math.floor(Math.random() * array.length)];
-    };
-
-    const randomRequest = randomValue(test);
-
-    setName(randomRequest.name);
-    setPhone(randomRequest.phone);
-    setEmail(randomRequest.email);
-    setProduct(randomRequest.product);
-  }, [testFlag]);
+  const addStatusLoading = useSelector((state) => state.requests.addStatusLoading);
+  const dispatch = useDispatch();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
     const request = {
       name: name,
       phone: phone,
@@ -37,20 +24,25 @@ const Form = ({ optionsProducts }) => {
       date: new Date().toISOString(),
       status: 'new',
     };
-    fetch(serverPath + 'requests', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
-    }).then((res) => {
-      if (res.ok) {
-        setLoading(false);
-        setTestFlag((value) => !value);
-      } else {
-        setError('Ошибка загрузки на сервер');
-        setLoading(false);
-      }
-    });
+
+    dispatch(addRequest(request));
   };
+
+  // заполнение тестовыми данными
+  useEffect(() => {
+    if (addStatusLoading === 'completed') {
+      const randomValue = (array) => {
+        return array[Math.floor(Math.random() * array.length)];
+      };
+
+      const randomRequest = randomValue(test);
+
+      setName(randomRequest.name);
+      setPhone(randomRequest.phone);
+      setEmail(randomRequest.email);
+      setProduct(randomRequest.product);
+    }
+  }, [addStatusLoading]);
 
   return (
     <div className="page with-nav radial-bg flex-center">
@@ -124,13 +116,20 @@ const Form = ({ optionsProducts }) => {
               </select>
             </div>
             <div className="form-group">
-              {error && <div className="alert alert-danger">{error}</div>}
-              {isLoading && (
+              {addStatusLoading === 'error' && (
+                <>
+                  <div className="alert alert-danger">Ошибка загрузки на сервер</div>
+                  <button type="submit" className="btn btn-lg btn-primary btn-block">
+                    Повторно отправить заявку
+                  </button>
+                </>
+              )}
+              {addStatusLoading === 'loading' && (
                 <button disabled type="submit" className="btn btn-lg btn-primary btn-block">
                   Заявка загружается
                 </button>
               )}
-              {!isLoading && (
+              {addStatusLoading === 'completed' && (
                 <button type="submit" className="btn btn-lg btn-primary btn-block">
                   Оформить заявку
                 </button>

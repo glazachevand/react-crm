@@ -1,12 +1,17 @@
-import { useContext } from 'react';
-import { TableContext } from '../pages/Table';
 import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { changeFilterStatus } from '../redux/slices/filterSlice';
+import { statuses } from '../types';
 
 export const LeftStatusNav = () => {
-  const { filter, badges, changeFilter, linksLeftPanelNav: links } = useContext(TableContext);
+  const badges = useSelector((state) => state.requests.badges);
+  const status = useSelector((state) => state.filter.status);
+  const dispatch = useDispatch();
+
+  const links = [{ status: 'all', title: 'Все', titleNav: 'Все вместе', class: '' }, ...statuses];
 
   const renderLists = links.map((link) => {
-    const cssClass = filter.status === link.status ? 'active' : '';
+    const cssClass = status === link.status ? 'active' : '';
     let displayBadge = { display: 'none' };
     let countBadge = '';
 
@@ -23,7 +28,8 @@ export const LeftStatusNav = () => {
           to="#!"
           className={cssClass}
           onClick={() => {
-            changeFilter('status', link.status);
+            dispatch(changeFilterStatus(link.status));
+            localStorage.setItem('status', link.status);
           }}>
           {link.titleNav}
           <div className="badge" style={displayBadge}>

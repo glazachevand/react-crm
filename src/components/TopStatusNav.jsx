@@ -1,12 +1,16 @@
-import { useContext } from 'react';
-import { TableContext } from '../pages/Table';
 import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { changeFilterStatus } from '../redux/slices/filterSlice';
+import { statuses } from '../types';
 
 export const TopStatusNav = () => {
-  const { filter, changeFilter, linksTopStatusBar: links } = useContext(TableContext);
+  const status = useSelector((state) => state.filter.status);
+  const dispatch = useDispatch();
+
+  const links = [{ status: 'all', title: 'Все', titleNav: 'Все', class: '' }, ...statuses];
 
   const renderLists = links.map((link) => {
-    const cssClass = filter.status === link.status ? 'btn btn-light active' : 'btn btn-light';
+    const cssClass = status === link.status ? 'btn btn-light active' : 'btn btn-light';
 
     return (
       <Link
@@ -15,7 +19,8 @@ export const TopStatusNav = () => {
         className={cssClass}
         data-value={link.status}
         onClick={() => {
-          changeFilter('status', link.status);
+          dispatch(changeFilterStatus(link.status));
+          localStorage.setItem('status', link.status);
         }}>
         {link.titleNav}
       </Link>
