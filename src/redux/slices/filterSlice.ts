@@ -41,6 +41,9 @@ const filterSlice = createSlice({
     changeFilterStatus(state, action: PayloadAction<string>) {
       state.status = action.payload;
     },
+    deleteFilterRequest(state, action: PayloadAction<number>) {
+      state.itemsFilter = state.itemsFilter.filter((item) => item.id !== action.payload);
+    },
     filterRequests(
       state,
       action: PayloadAction<{
@@ -79,7 +82,8 @@ const filterSlice = createSlice({
   },
 });
 
-export const { changeFilterProduct, changeFilterStatus, filterRequests } = filterSlice.actions;
+export const { changeFilterProduct, changeFilterStatus, filterRequests, deleteFilterRequest } =
+  filterSlice.actions;
 
 export const selectFilter = (state: RootState) => state.filter;
 export const selectFilterProduct = (state: RootState) => state.filter.product;

@@ -68,9 +68,18 @@ const requestsSlice = createSlice({
     },
     deleteStatusUpdate(state) {
       state.deleteStatusLoading = StatusLoading.BEGIN;
+      //state.editId = '';
     },
     setEditId(state, action: PayloadAction<string>) {
       state.editId = action.payload;
+    },
+    deleteEditId(state, action: PayloadAction<string>) {
+      if (state.editId === action.payload) {
+        state.editId = '';
+      }
+    },
+    deleteRequestFromTable(state, action: PayloadAction<number>) {
+      state.items = state.items.filter((item) => item.id !== action.payload);
     },
   },
 
@@ -131,8 +140,15 @@ const requestsSlice = createSlice({
   },
 });
 
-export const { countBadges, addStatusUpdate, putStatusUpdate, deleteStatusUpdate, setEditId } =
-  requestsSlice.actions;
+export const {
+  countBadges,
+  addStatusUpdate,
+  putStatusUpdate,
+  deleteStatusUpdate,
+  setEditId,
+  deleteEditId,
+  deleteRequestFromTable,
+} = requestsSlice.actions;
 
 export const selectRequests = (state: RootState) => state.requests;
 export const selectRequestsEditId = (state: RootState) => state.requests.editId;

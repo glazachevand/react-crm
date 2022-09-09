@@ -2,7 +2,12 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { selectRequests, putStatusUpdate, deleteStatusUpdate } from '../redux/slices/requestsSlice';
+import {
+  selectRequests,
+  putStatusUpdate,
+  deleteStatusUpdate,
+  deleteEditId,
+} from '../redux/slices/requestsSlice';
 import { getRequestById, putRequest, deleteRequest } from '../redux/asyncActions';
 import { useAppDispatch } from '../redux/store';
 import { optionsProducts, optionsStatuses, RequestEdit, products, statuses } from '../types';
@@ -50,7 +55,7 @@ const Edit: React.FC = () => {
     setRequest((prev) => ({ ...prev, [event.target.name]: event.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const requestPut = { ...request };
     delete requestPut.dateEdit;
@@ -61,11 +66,14 @@ const Edit: React.FC = () => {
     });
   };
 
-  const clickDeleteRequest = (id: string | undefined): void => {
+  const deleteHandler = (id: string | undefined): void => {
     if (id) {
       void dispatch(deleteRequest(id)).then((data) => {
         localStorage.removeItem('editId');
         if (data.meta.requestStatus === 'fulfilled') {
+          if (id) {
+            dispatch(deleteEditId(id));
+          }
           navigate('/table');
         }
       });
@@ -113,7 +121,7 @@ const Edit: React.FC = () => {
               )}
               {getStatusLoading === 'loading' && <h3>загрузка...</h3>}
               {getStatusLoading === 'completed' && (
-                <form id="form" onSubmit={handleSubmit}>
+                <form id="form" onSubmit={submitHandler}>
                   <div className="card mb-4">
                     <div className="card-header">Данные о заявке</div>
                     <div className="card-body">
@@ -239,7 +247,7 @@ const Edit: React.FC = () => {
                         <button
                           type="button"
                           className="btn btn-danger"
-                          onClick={() => clickDeleteRequest(id)}>
+                          onClick={() => deleteHandler(id)}>
                           Удалить
                         </button>
                       )}

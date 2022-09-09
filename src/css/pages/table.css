@@ -3,6 +3,9 @@
   padding-top: 0px;
   padding-bottom: 20px;
 }
+.button-close {
+  border: none;
+}
 .left-panel {
   background-color: #094071;
   width: 300px;

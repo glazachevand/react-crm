@@ -1,7 +1,16 @@
 import { Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setEditId } from '../redux/slices/requestsSlice';
-import { RequestTable } from '../types';
+import {
+  setEditId,
+  deleteRequestFromTable,
+  deleteStatusUpdate,
+  deleteEditId,
+  countBadges,
+} from '../redux/slices/requestsSlice';
+import { deleteFilterRequest } from '../redux/slices/filterSlice';
+import { deleteRequest } from '../redux/asyncActions';
+import { useAppDispatch } from '../redux/store';
+import { RequestTable, statuses } from '../types';
+import deleteBtn from '../assets/img/cross.svg';
 
 export const TableItem: React.FC<RequestTable> = ({
   name,
@@ -13,7 +22,20 @@ export const TableItem: React.FC<RequestTable> = ({
   statusClass,
   id,
 }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+
+  const deleteHandler = (id: number): void => {
+    void dispatch(deleteRequest(String(id))).then((data) => {
+      localStorage.removeItem('editId');
+      if (data.meta.requestStatus === 'fulfilled') {
+        dispatch(deleteRequestFromTable(id));
+        dispatch(countBadges(statuses));
+        dispatch(deleteFilterRequest(id));
+        dispatch(deleteStatusUpdate());
+        dispatch(deleteEditId(String(id)));
+      }
+    });
+  };
 
   return (
     <tr>
@@ -35,6 +57,11 @@ export const TableItem: React.FC<RequestTable> = ({
           }}>
           Редактировать
         </Link>
+      </td>
+      <td>
+        <button className="button-close" onClick={() => deleteHandler(id)}>
+          <img src={deleteBtn} title="удалить заявку" alt="delete" />
+        </button>
       </td>
     </tr>
   );
