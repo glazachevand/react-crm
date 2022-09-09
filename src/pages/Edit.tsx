@@ -1,52 +1,90 @@
-import { useEffect } from 'react';
+import { useEffect, useState, ChangeEvent } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { getRequestForEdit, changeRequestField } from '../redux/slices/editSlice';
+import { selectRequests, putStatusUpdate, deleteStatusUpdate } from '../redux/slices/requestsSlice';
 import { getRequestById, putRequest, deleteRequest } from '../redux/asyncActions';
-import { optionsProducts, optionsStatuses } from '../types';
+import { useAppDispatch } from '../redux/store';
+import { optionsProducts, optionsStatuses, RequestEdit, products, statuses } from '../types';
 import '../css/pages/edit.css';
 
-const Edit = () => {
+const Edit: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { requestEdit, getStatusLoading, putStatusLoading, deleteStatusLoading } = useSelector(
-    (state) => state.edit,
-  );
-  const dispatch = useDispatch();
+  const {
+    getStatusLoading,
+    putStatusLoading,
+    deleteStatusLoading,
+    getErrorMessage,
+    putErrorMessage,
+    deleteErrorMessage,
+  } = useSelector(selectRequests);
+  const dispatch = useAppDispatch();
+
+  const [request, setRequest] = useState<RequestEdit>({
+    name: '',
+    phone: '',
+    email: '',
+    date: '',
+    dateEdit: '',
+    product: products[0].product,
+    status: statuses[0].status,
+    id: NaN,
+  });
 
   const getRequest = async () => {
-    const data = await dispatch(getRequestById(id));
+    const data = await dispatch(getRequestById(id || ''));
     const itemEdit = unwrapResult(data);
-    dispatch(getRequestForEdit(itemEdit));
+    const dateNew = new Date(itemEdit.date);
+    setRequest({
+      ...itemEdit,
+      dateEdit: `${dateNew.toLocaleDateString('ru-RU')} ${dateNew.toLocaleTimeString('ru-RU')}`,
+    });
   };
 
   useEffect(() => {
-    getRequest();
+    void getRequest();
   }, []);
 
-  const changeInput = (value, field) => {
-    dispatch(changeRequestField({ field, value }));
+  const changeHandler = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setRequest((prev) => ({ ...prev, [event.target.name]: event.target.value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const requestPut = { ...requestEdit };
+    const requestPut = { ...request };
     delete requestPut.dateEdit;
-    const data = await dispatch(putRequest(requestPut));
-    if (data.meta.requestStatus === 'fulfilled') {
-      navigate('/table');
+    void dispatch(putRequest(requestPut)).then((data) => {
+      if (data.meta.requestStatus === 'fulfilled') {
+        navigate('/table');
+      }
+    });
+  };
+
+  const clickDeleteRequest = (id: string | undefined): void => {
+    if (id) {
+      void dispatch(deleteRequest(id)).then((data) => {
+        localStorage.removeItem('editId');
+        if (data.meta.requestStatus === 'fulfilled') {
+          navigate('/table');
+        }
+      });
     }
   };
 
-  const clickDeleteRequest = async (id) => {
-    const data = await dispatch(deleteRequest(id));
-
-    if (data.meta.requestStatus === 'fulfilled') {
-      localStorage.removeItem('editId');
-      navigate('/table');
+  useEffect(() => {
+    if (putStatusLoading === 'completed') {
+      alert('Заявка успешно обновилась');
+      dispatch(putStatusUpdate());
     }
-  };
+  }, [putStatusLoading]);
+
+  useEffect(() => {
+    if (deleteStatusLoading === 'completed') {
+      alert('Заявка успешно удалена');
+      dispatch(deleteStatusUpdate());
+    }
+  }, [deleteStatusLoading]);
 
   return (
     <div className="page with-nav">
@@ -65,16 +103,16 @@ const Edit = () => {
           <div className="row">
             <div className="col">
               {getStatusLoading === 'error' && (
-                <div className="alert alert-danger">Ошибка загрузки с сервера</div>
+                <div className="alert alert-danger">{getErrorMessage}</div>
               )}
               {putStatusLoading === 'error' && (
-                <div className="alert alert-danger">Ошибка загрузки на сервер</div>
+                <div className="alert alert-danger">{putErrorMessage}</div>
               )}
               {deleteStatusLoading === 'error' && (
-                <div className="alert alert-danger">Ошибка удаления записи</div>
+                <div className="alert alert-danger">{deleteErrorMessage}</div>
               )}
               {getStatusLoading === 'loading' && <h3>загрузка...</h3>}
-              {requestEdit && (
+              {getStatusLoading === 'completed' && (
                 <form id="form" onSubmit={handleSubmit}>
                   <div className="card mb-4">
                     <div className="card-header">Данные о заявке</div>
@@ -94,7 +132,7 @@ const Edit = () => {
                           <strong>Дата создания:</strong>
                         </div>
                         <div className="col" id="date">
-                          {requestEdit.dateEdit}
+                          {request.dateEdit}
                         </div>
                       </div>
 
@@ -107,8 +145,8 @@ const Edit = () => {
                             id="product"
                             name="product"
                             className="custom-select"
-                            value={requestEdit.product}
-                            onChange={(e) => changeInput(e.target.value, 'product')}>
+                            value={request.product}
+                            onChange={changeHandler}>
                             {optionsProducts}
                           </select>
                         </div>
@@ -122,8 +160,8 @@ const Edit = () => {
                           <input
                             type="text"
                             className="form-control"
-                            defaultValue={requestEdit.name}
-                            onChange={(e) => changeInput(e.target.value, 'name')}
+                            defaultValue={request.name}
+                            onChange={changeHandler}
                             id="name"
                             name="name"
                           />
@@ -138,8 +176,8 @@ const Edit = () => {
                           <input
                             type="email"
                             className="form-control"
-                            defaultValue={requestEdit.email}
-                            onChange={(e) => changeInput(e.target.value, 'email')}
+                            defaultValue={request.email}
+                            onChange={changeHandler}
                             id="email"
                             name="email"
                           />
@@ -154,8 +192,8 @@ const Edit = () => {
                           <input
                             type="tel"
                             className="form-control"
-                            defaultValue={requestEdit.phone}
-                            onChange={(e) => changeInput(e.target.value, 'phone')}
+                            defaultValue={request.phone}
+                            onChange={changeHandler}
                             id="phone"
                             name="phone"
                           />
@@ -171,8 +209,8 @@ const Edit = () => {
                             className="custom-select"
                             id="status"
                             name="status"
-                            value={requestEdit.status}
-                            onChange={(e) => changeInput(e.target.value, 'status')}>
+                            value={request.status}
+                            onChange={changeHandler}>
                             {optionsStatuses}
                           </select>
                         </div>
@@ -201,9 +239,7 @@ const Edit = () => {
                         <button
                           type="button"
                           className="btn btn-danger"
-                          onClick={() => {
-                            clickDeleteRequest(id);
-                          }}>
+                          onClick={() => clickDeleteRequest(id)}>
                           Удалить
                         </button>
                       )}

@@ -1,46 +1,52 @@
-import { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useEffect, useState, ChangeEvent } from 'react';
+import { useSelector } from 'react-redux';
 import { addRequest } from '../redux/asyncActions';
-import { optionsProducts } from '../types';
-import test from '../utils/test';
+import { selectRequests, addStatusUpdate } from '../redux/slices/requestsSlice';
+import { useAppDispatch } from '../redux/store';
+import { optionsProducts, RequestForm, products } from '../types';
+import { tests, Test } from '../utils/test';
 import '../css/pages/form.css';
 
-const Form = () => {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [product, setProduct] = useState('course-html');
+const Form: React.FC = () => {
+  const [form, setForm] = useState<RequestForm>({
+    name: '',
+    phone: '',
+    email: '',
+    product: products[0].product,
+  });
 
-  const addStatusLoading = useSelector((state) => state.requests.addStatusLoading);
-  const dispatch = useDispatch();
+  const { addStatusLoading, addErrorMessage } = useSelector(selectRequests);
+  const dispatch = useAppDispatch();
 
-  const handleSubmit = (e) => {
+  const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const request = {
-      name: name,
-      phone: phone,
-      email: email,
-      product: product,
+      ...form,
       date: new Date().toISOString(),
       status: 'new',
     };
 
-    dispatch(addRequest(request));
+    void dispatch(addRequest(request));
   };
 
-  // заполнение тестовыми данными
+  const changeHandler = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+  };
+
   useEffect(() => {
     if (addStatusLoading === 'completed') {
-      const randomValue = (array) => {
+      alert('Заявка успешно отправлена');
+      dispatch(addStatusUpdate());
+    }
+
+    // заполнение тестовыми данными
+    if (addStatusLoading === 'idle') {
+      const randomValue = (array: Test[]): Test => {
         return array[Math.floor(Math.random() * array.length)];
       };
 
-      const randomRequest = randomValue(test);
-
-      setName(randomRequest.name);
-      setPhone(randomRequest.phone);
-      setEmail(randomRequest.email);
-      setProduct(randomRequest.product);
+      const randomRequest = randomValue(tests);
+      setForm(randomRequest);
     }
   }, [addStatusLoading]);
 
@@ -56,7 +62,7 @@ const Form = () => {
 
           <div className="white-plate__line-between white-plate__line-between--main"></div>
 
-          <form id="form" method="POST" action="" onSubmit={handleSubmit}>
+          <form id="form" method="POST" action="" onSubmit={submitHandler}>
             <label>Ваши данные:</label>
             <div className="form-group">
               <input
@@ -67,10 +73,8 @@ const Form = () => {
                 className="form-control"
                 placeholder="Имя и Фамилия"
                 required
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                }}
+                value={form.name}
+                onChange={changeHandler}
               />
             </div>
             <div className="form-group">
@@ -81,10 +85,8 @@ const Form = () => {
                 autoComplete="on"
                 className="form-control"
                 placeholder="Телефон"
-                value={phone}
-                onChange={(e) => {
-                  setPhone(e.target.value);
-                }}
+                value={form.phone}
+                onChange={changeHandler}
               />
             </div>
             <div className="form-group">
@@ -96,10 +98,8 @@ const Form = () => {
                 className="form-control"
                 placeholder="Email"
                 required
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
+                value={form.email}
+                onChange={changeHandler}
               />
             </div>
             <div className="form-group">
@@ -108,17 +108,15 @@ const Form = () => {
                 id="product"
                 name="product"
                 className="form-control"
-                value={product}
-                onChange={(e) => {
-                  setProduct(e.target.value);
-                }}>
+                value={form.product}
+                onChange={changeHandler}>
                 {optionsProducts}
               </select>
             </div>
             <div className="form-group">
               {addStatusLoading === 'error' && (
                 <>
-                  <div className="alert alert-danger">Ошибка загрузки на сервер</div>
+                  <div className="alert alert-danger">{addErrorMessage}</div>
                   <button type="submit" className="btn btn-lg btn-primary btn-block">
                     Повторно отправить заявку
                   </button>
@@ -126,10 +124,10 @@ const Form = () => {
               )}
               {addStatusLoading === 'loading' && (
                 <button disabled type="submit" className="btn btn-lg btn-primary btn-block">
-                  Заявка загружается
+                  Заявка загружается...
                 </button>
               )}
-              {addStatusLoading === 'completed' && (
+              {(addStatusLoading === 'completed' || addStatusLoading === 'idle') && (
                 <button type="submit" className="btn btn-lg btn-primary btn-block">
                   Оформить заявку
                 </button>

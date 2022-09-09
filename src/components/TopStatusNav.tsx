@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { changeFilterStatus } from '../redux/slices/filterSlice';
+import { changeFilterStatus, selectFilterStatus } from '../redux/slices/filterSlice';
 import { statuses } from '../types';
 
-export const TopStatusNav = () => {
-  const status = useSelector((state) => state.filter.status);
+export const TopStatusNav: React.FC = () => {
+  const status = useSelector(selectFilterStatus);
   const dispatch = useDispatch();
 
-  const links = [{ status: 'all', title: 'Все', titleNav: 'Все', class: '' }, ...statuses];
+  const links = [...statuses];
+  links[0].titleNav = 'Все';
 
   const renderLists = links.map((link) => {
     const cssClass = status === link.status ? 'btn btn-light active' : 'btn btn-light';

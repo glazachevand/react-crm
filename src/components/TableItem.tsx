@@ -1,7 +1,19 @@
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setEditId } from '../redux/slices/requestsSlice';
+import { RequestTable } from '../types';
 
-export const TableItem = ({ request }) => {
-  const { name, phone, email, dateFormat, productName, statusName, statusClass, id } = request;
+export const TableItem: React.FC<RequestTable> = ({
+  name,
+  phone,
+  email,
+  dateFormat,
+  productName,
+  statusName,
+  statusClass,
+  id,
+}) => {
+  const dispatch = useDispatch();
 
   return (
     <tr>
@@ -16,9 +28,10 @@ export const TableItem = ({ request }) => {
       </td>
       <td>
         <Link
-          to={'/edit/' + id}
+          to={'/edit/' + String(id)}
           onClick={() => {
-            localStorage.setItem('editId', id);
+            dispatch(setEditId(String(id)));
+            localStorage.setItem('editId', String(id));
           }}>
           Редактировать
         </Link>

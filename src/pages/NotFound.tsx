@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-const NotFound = () => {
+const NotFound: React.FC = () => {
   const cssHeader = {
     fontWeight: '800',
     color: '#2789e6',

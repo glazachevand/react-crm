@@ -1,23 +1,24 @@
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { changeFilterStatus } from '../redux/slices/filterSlice';
+import { changeFilterStatus, selectFilterStatus } from '../redux/slices/filterSlice';
+import { selectRequestsBadges } from '../redux/slices/requestsSlice';
 import { statuses } from '../types';
 
-export const LeftStatusNav = () => {
-  const badges = useSelector((state) => state.requests.badges);
-  const status = useSelector((state) => state.filter.status);
+export const LeftStatusNav: React.FC = () => {
+  const badgesStatus = useSelector(selectRequestsBadges);
+  const status = useSelector(selectFilterStatus);
   const dispatch = useDispatch();
 
-  const links = [{ status: 'all', title: 'Все', titleNav: 'Все вместе', class: '' }, ...statuses];
-
-  const renderLists = links.map((link) => {
+  const renderLists = statuses.map((link) => {
     const cssClass = status === link.status ? 'active' : '';
     let displayBadge = { display: 'none' };
     let countBadge = '';
 
-    if (badges && badges[link.status] > 0) {
+    const index = badgesStatus.findIndex((item) => item.status === link.status);
+
+    if (index >= 0 && badgesStatus[index].badges > 0) {
       displayBadge = { display: 'inline-block' };
-      countBadge = badges[link.status];
+      countBadge = String(badgesStatus[index].badges);
     }
 
     return (

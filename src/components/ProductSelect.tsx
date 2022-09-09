@@ -1,9 +1,9 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { changeFilterProduct } from '../redux/slices/filterSlice';
+import { changeFilterProduct, selectFilterProduct } from '../redux/slices/filterSlice';
 import { optionsProducts } from '../types';
 
-export const ProductSelect = () => {
-  const product = useSelector((state) => state.filter.product);
+export const ProductSelect: React.FC = () => {
+  const product = useSelector(selectFilterProduct);
   const dispatch = useDispatch();
 
   return (
