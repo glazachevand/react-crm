@@ -34,7 +34,11 @@ export const TableItems: React.FC = () => {
       {requestsStatusLoading === 'error' && (
         <div className="alert alert-danger">Ошибка загрузки с сервера</div>
       )}
-      {requestsStatusLoading === 'loading' && <h3>загрузка...</h3>}
+      {requestsStatusLoading === 'loading' && (
+        <div className="preloader-container">
+          <div className="preloader"></div>
+        </div>
+      )}
       {requestsStatusLoading === 'completed' && (
         <table className="table fs-14">
           <thead>

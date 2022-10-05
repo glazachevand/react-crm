@@ -68,7 +68,6 @@ const requestsSlice = createSlice({
     },
     deleteStatusUpdate(state) {
       state.deleteStatusLoading = StatusLoading.BEGIN;
-      //state.editId = '';
     },
     setEditId(state, action: PayloadAction<string>) {
       state.editId = action.payload;

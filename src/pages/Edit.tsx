@@ -10,6 +10,7 @@ import {
 } from '../redux/slices/requestsSlice';
 import { getRequestById, putRequest, deleteRequest } from '../redux/asyncActions';
 import { useAppDispatch } from '../redux/store';
+import { Modal } from '../components';
 import { optionsProducts, optionsStatuses, RequestEdit, products, statuses } from '../types';
 import '../css/pages/edit.css';
 
@@ -37,6 +38,14 @@ const Edit: React.FC = () => {
     id: NaN,
   });
 
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState('');
+
+  const clickHandler = () => {
+    setOpen(false);
+    navigate('/table');
+  };
+
   const getRequest = async () => {
     const data = await dispatch(getRequestById(id || ''));
     const itemEdit = unwrapResult(data);
@@ -61,7 +70,9 @@ const Edit: React.FC = () => {
     delete requestPut.dateEdit;
     void dispatch(putRequest(requestPut)).then((data) => {
       if (data.meta.requestStatus === 'fulfilled') {
-        navigate('/table');
+        setText('Заявка успешно обновилась');
+        setOpen(true);
+        dispatch(putStatusUpdate());
       }
     });
   };
@@ -74,25 +85,13 @@ const Edit: React.FC = () => {
           if (id) {
             dispatch(deleteEditId(id));
           }
-          navigate('/table');
+          setText('Заявка успешно удалена');
+          setOpen(true);
+          dispatch(deleteStatusUpdate());
         }
       });
     }
   };
-
-  useEffect(() => {
-    if (putStatusLoading === 'completed') {
-      alert('Заявка успешно обновилась');
-      dispatch(putStatusUpdate());
-    }
-  }, [putStatusLoading]);
-
-  useEffect(() => {
-    if (deleteStatusLoading === 'completed') {
-      alert('Заявка успешно удалена');
-      dispatch(deleteStatusUpdate());
-    }
-  }, [deleteStatusLoading]);
 
   return (
     <div className="page with-nav">
@@ -119,7 +118,11 @@ const Edit: React.FC = () => {
               {deleteStatusLoading === 'error' && (
                 <div className="alert alert-danger">{deleteErrorMessage}</div>
               )}
-              {getStatusLoading === 'loading' && <h3>загрузка...</h3>}
+              {getStatusLoading === 'loading' && (
+                <div className="preloader-container">
+                  <div className="preloader"></div>
+                </div>
+              )}
               {getStatusLoading === 'completed' && (
                 <form id="form" onSubmit={submitHandler}>
                   <div className="card mb-4">
@@ -230,6 +233,7 @@ const Edit: React.FC = () => {
                     <div className="col text-right">
                       {putStatusLoading === 'loading' ? (
                         <button disabled type="submit" className="btn btn-primary">
+                          <span className="spinner"></span>
                           Заявка сохраняется
                         </button>
                       ) : (
@@ -241,6 +245,7 @@ const Edit: React.FC = () => {
                     <div className="col-auto text-right">
                       {deleteStatusLoading === 'loading' ? (
                         <button disabled type="button" className="btn btn-danger">
+                          <span className="spinner"></span>
                           Заявка удаляется
                         </button>
                       ) : (
@@ -257,6 +262,7 @@ const Edit: React.FC = () => {
               )}
             </div>
           </div>
+          <Modal open={open} clickHandler={clickHandler} text={text} />
         </div>
       </div>
     </div>

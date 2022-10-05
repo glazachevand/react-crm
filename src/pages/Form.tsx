@@ -6,6 +6,7 @@ import { useAppDispatch } from '../redux/store';
 import { optionsProducts, RequestForm, products } from '../types';
 import { tests, Test } from '../utils/test';
 import '../css/pages/form.css';
+import { Modal } from '../components';
 
 const Form: React.FC = () => {
   const [form, setForm] = useState<RequestForm>({
@@ -14,6 +15,12 @@ const Form: React.FC = () => {
     email: '',
     product: products[0].product,
   });
+
+  const [open, setOpen] = useState(false);
+
+  const clickHandler = () => {
+    setOpen(false);
+  };
 
   const { addStatusLoading, addErrorMessage } = useSelector(selectRequests);
   const dispatch = useAppDispatch();
@@ -26,7 +33,12 @@ const Form: React.FC = () => {
       status: 'new',
     };
 
-    void dispatch(addRequest(request));
+    void dispatch(addRequest(request)).then((data) => {
+      if (data.meta.requestStatus === 'fulfilled') {
+        setOpen(true);
+        dispatch(addStatusUpdate());
+      }
+    });
   };
 
   const changeHandler = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -34,11 +46,6 @@ const Form: React.FC = () => {
   };
 
   useEffect(() => {
-    if (addStatusLoading === 'completed') {
-      alert('Заявка успешно отправлена');
-      dispatch(addStatusUpdate());
-    }
-
     // заполнение тестовыми данными
     if (addStatusLoading === 'idle') {
       const randomValue = (array: Test[]): Test => {
@@ -124,7 +131,8 @@ const Form: React.FC = () => {
               )}
               {addStatusLoading === 'loading' && (
                 <button disabled type="submit" className="btn btn-lg btn-primary btn-block">
-                  Заявка загружается...
+                  <span className="spinner"></span>
+                  Заявка загружается
                 </button>
               )}
               {(addStatusLoading === 'completed' || addStatusLoading === 'idle') && (
@@ -134,6 +142,8 @@ const Form: React.FC = () => {
               )}
             </div>
           </form>
+
+          <Modal open={open} clickHandler={clickHandler} text="Заявка успешно отправлена" />
         </div>
       </div>
     </div>
