@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/react-crm/static/css/main.0e8c1273.css",
-    "main.js": "/react-crm/static/js/main.2ad3690b.js",
+    "main.css": "/react-crm/static/css/main.492c195d.css",
+    "main.js": "/react-crm/static/js/main.a248d3e0.js",
     "static/media/avatar-128.jpg": "/react-crm/static/media/avatar-128.587bd90b91ad4ce92b48.jpg",
     "index.html": "/react-crm/index.html",
     "static/media/cross.svg": "/react-crm/static/media/cross.0b91fc7b2788823fe71dea4dbf7099a7.svg",
-    "main.0e8c1273.css.map": "/react-crm/static/css/main.0e8c1273.css.map",
-    "main.2ad3690b.js.map": "/react-crm/static/js/main.2ad3690b.js.map"
+    "main.492c195d.css.map": "/react-crm/static/css/main.492c195d.css.map",
+    "main.a248d3e0.js.map": "/react-crm/static/js/main.a248d3e0.js.map"
   },
   "entrypoints": [
-    "static/css/main.0e8c1273.css",
-    "static/js/main.2ad3690b.js"
+    "static/css/main.492c195d.css",
+    "static/js/main.a248d3e0.js"
   ]
 }
